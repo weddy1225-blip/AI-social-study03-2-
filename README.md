@@ -4,7 +4,7 @@
 > 這是一個結合「防災教育」與「公民決策」的互動教學工具，專為國小社會科設計，讓學生身歷其境體驗城市領導者的兩難抉擇。
 
 ## 🎮 立即體驗
-[點擊這裡開始遊戲](https://weddy1225-blip.github.io/AI-social-study03-v2-/)
+[點擊這裡開始遊戲](https://weddy1225-blip.github.io/AI-social-study03-2-/)
 
 ---
 
