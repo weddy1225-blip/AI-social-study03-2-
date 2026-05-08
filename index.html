@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>市長請決定：全城停電挑戰 (102題完整版)</title>
+    <style>
+        :root {
+            --primary-color: #FFD700;
+            --danger-color: #FF4500;
+            --info-color: #1E90FF;
+            --success-color: #2E7D32;
+            --bg-color: #F0F4F8;
+        }
+
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #222;
+        }
+
+        #game-container {
+            width: 92%;
+            max-width: 700px;
+            background: white;
+            border: 6px solid #333;
+            border-radius: 35px;
+            padding: 30px;
+            box-shadow: 12px 12px 0px #444;
+            text-align: center;
+        }
+
+        h1 { font-size: 2.2rem; font-weight: 900; margin-bottom: 20px; }
+        .page { display: none; }
+        .active { display: block; animation: zoomIn 0.3s ease; }
+        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .status-bar {
+            background: #222;
+            color: #FFD700;
+            border-radius: 50px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        .phase-indicator {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 10px;
+            background: #EEE;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            border: 2px solid #333;
+            font-weight: bold;
+        }
+
+        .btn-main {
+            background-color: var(--primary-color);
+            border: 5px solid #222;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: 900;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #666;
+            margin-top: 20px;
+        }
+        .btn-main:active { transform: translateY(4px); box-shadow: 0 2px 0 #666; }
+
+        .choice-list { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .choice-btn {
+            background: #fff;
+            border: 4px solid #333;
+            padding: 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.2s;
+        }
+        .choice-btn:hover { background: #FFF9C4; border-color: var(--info-color); }
+        .choice-title { font-size: 1.4rem; font-weight: 900; display: block; }
+        
+        .result-item {
+            background: #E3F2FD;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            text-align: left;
+            border-left: 8px solid var(--info-color);
+        }
+        .wrong-choice { border-left-color: var(--danger-color); background: #FFEBEE; }
+        
+        .info-box {
+            background: #F9F9F9;
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid #DDD;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            background: #333;
+            color: white;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="intro-page" class="page active">
+        <h1>⚡ 市長請決定：<br>全城停電挑戰</h1>
+        <div class="info-box" style="border-color: var(--primary-color);">
+            <p><strong>市長您好：</strong></p>
+            <p>這是一場關於「責任」與「權衡」的挑戰。您的決策將決定這座城市如何度過黑暗。</p>
+            <ul>
+                <li><strong>第一階段：</strong>守護生命底線。測試您對防災 SOP 的專業度。</li>
+                <li><strong>第二階段：</strong>資源權衡兩難。在必須「犧牲」時，您會保護誰？</li>
+            </ul>
+        </div>
+        <button class="btn-main" onclick="startGame()">承擔重任 ➔</button>
+    </div>
+
+    <div id="bridge-page" class="page">
+        <h2 style="color: var(--success-color);">第一階段 任務完成</h2>
+        <div class="info-box" style="border-left: 8px solid var(--success-color);">
+            <p><strong>專業知識考驗已結束。</strong></p>
+            <p>接下來進入第二階段。在災害中，資源永遠不足，沒有完美的答案。</p>
+            <p style="color: var(--danger-color); font-weight: 900;">警告：</p>
+            <p>接下來的決定都代表必須「犧牲」另一部分人的權益。請謹慎面對您的權力。</p>
+        </div>
+        <button class="btn-main" onclick="startPhase2()">慎重進入第二階段 ➔</button>
+    </div>
+
+    <div id="game-page" class="page">
+        <div id="phase-tag" class="phase-indicator"></div>
+        <div class="status-bar">
+            <span>⚡ 剩餘電力: <span id="energy-val">100</span> %</span>
+        </div>
+        <div id="scenario-content">
+            <h2 id="step-title" style="margin:0; color:var(--danger-color);"></h2>
+            <p id="step-desc" style="font-size: 1.3rem; margin: 15px 0; font-weight: bold;"></p>
+            <div id="choice-container" class="choice-list"></div>
+        </div>
+    </div>
+
+    <div id="result-page" class="page">
+        <h1>📊 市長決策反思報告</h1>
+        <div id="feedback-list"></div>
+        <div id="final-evaluation" class="info-box" style="margin-top: 20px; border: 4px solid #333;"></div>
+        <button class="btn-main" onclick="location.reload()">重新演練 ↺</button>
+    </div>
+</div>
+
+<script>
+    let energy = 100;
+    let history = [];
+    let currentPhase = 1;
+    let selectedP1 = [];
+    let selectedP2 = [];
+    let currentStepInFullGame = 0;
+
+    // --- 第一階段題庫 (50題) ---
+    const phase1Data = [
+        { title: "醫院求救", desc: "醫院備用發電機即將停轉，這關係到手術室病人的生命，你會？", choices: [{ text: "優先調撥戰備儲油支援", correct: true, impact: "救命物資優先給予生命維持系統。", cost: 10 }, { text: "要求醫院自行聯絡廠商", correct: false, impact: "緊急狀況下物流中斷，導致手術失敗。", cost: 40 }] },
+        { title: "高壓線斷裂", desc: "高壓電線掉落在積水的馬路上，現場極度危險，你會？", choices: [{ text: "派員立刻封鎖區域並斷電", correct: true, impact: "防止民眾誤入觸電區域是SOP。", cost: 10 }, { text: "請民眾拿木棍移開電線", correct: false, impact: "民眾救災前就觸電身亡。", cost: 50 }] },
+        { title: "毒氣外洩告警", desc: "工業區變電站爆炸引發濃煙，疑似有毒氣，處置方式為？", choices: [{ text: "立即疏散下風處居民", correct: true, impact: "保護民眾遠離危害環境是首要任務。", cost: 15 }, { text: "派員先去檢查濃煙成分", correct: false, impact: "分析需要時間，應先撤離民眾。", cost: 45 }] },
+        { title: "瓦斯監測失效", desc: "地下街瓦斯偵測器因停電斷線，存在爆炸風險，你會？", choices: [{ text: "預防性關閉主閥門", correct: true, impact: "安全預防應採取最保險措施。", cost: 10 }, { text: "等聞到異味再處理", correct: false, impact: "瓦斯爆炸往往發生在察覺之前。", cost: 50 }] },
+        { title: "捷運淹水", desc: "暴雨造成捷運地下月台積水快速上升，你會？", choices: [{ text: "立即停止列車進站並疏散旅客", correct: true, impact: "先確保人員安全最重要。", cost: 10 }, { text: "等水退再通知旅客", correct: false, impact: "可能導致大量民眾受困。", cost: 45 }] },
+        { title: "土石流警戒", desc: "山區連日豪雨，土石流警戒升高，你會？", choices: [{ text: "提前撤離危險區居民", correct: true, impact: "預防性撤離可降低傷亡。", cost: 10 }, { text: "等真的崩塌再撤離", correct: false, impact: "災害發生後可能來不及逃生。", cost: 50 }] },
+        { title: "化學槽車翻覆", desc: "化學槽車翻覆並洩漏不明液體，你會？", choices: [{ text: "封鎖現場並通知化災單位", correct: true, impact: "專業單位才能安全處理。", cost: 15 }, { text: "直接用水沖散液體", correct: false, impact: "可能造成未知化學反應。", cost: 45 }] },
+        { title: "海嘯警報", desc: "沿海地區發布海嘯警報，你會？", choices: [{ text: "引導民眾往高處避難", correct: true, impact: "遠離海岸是保命關鍵。", cost: 10 }, { text: "到海邊觀看海浪", correct: false, impact: "海嘯可能瞬間吞沒岸邊。", cost: 50 }] },
+        { title: "避難所停電", desc: "大型避難所突然全面停電，你會？", choices: [{ text: "啟動備援照明系統", correct: true, impact: "維持照明避免混亂。", cost: 10 }, { text: "請民眾自行使用手機照明", correct: false, impact: "容易造成恐慌與踩踏。", cost: 35 }] },
+        { title: "電梯受困", desc: "大樓停電後多人受困電梯內，你會？", choices: [{ text: "通知專業維修人員救援", correct: true, impact: "避免民眾自行脫困受傷。", cost: 10 }, { text: "叫受困者自己撬門", correct: false, impact: "可能造成墜落事故。", cost: 50 }] },
+        { title: "山林火災", desc: "山區發生大規模火災且風勢強勁，你會？", choices: [{ text: "建立防火線並疏散居民", correct: true, impact: "控制火勢與撤離同步進行。", cost: 15 }, { text: "先拍攝火勢再處理", correct: false, impact: "拖延會讓火勢擴大。", cost: 45 }] },
+        { title: "停水危機", desc: "自來水廠設備損壞，城市可能停水，你會？", choices: [{ text: "啟動緊急供水站", correct: true, impact: "維持基本民生需求。", cost: 10 }, { text: "等民眾抱怨再公告", correct: false, impact: "會造成大量混亂。", cost: 35 }] },
+        { title: "橋梁龜裂", desc: "地震後橋梁出現明顯裂痕，你會？", choices: [{ text: "立刻封橋檢查", correct: true, impact: "避免橋梁斷裂事故。", cost: 10 }, { text: "讓車輛慢慢通過即可", correct: false, impact: "可能發生坍塌。", cost: 50 }] },
+        { title: "大型停電", desc: "城市大範圍停電造成交通號誌失效，你會？", choices: [{ text: "派員交通疏導", correct: true, impact: "避免交通事故。", cost: 10 }, { text: "等電力恢復再處理", correct: false, impact: "可能引發連環車禍。", cost: 40 }] },
+        { title: "校園火警", desc: "學校實驗室發生火災警報，你會？", choices: [{ text: "立即疏散學生", correct: true, impact: "人命安全優先。", cost: 10 }, { text: "先確認是不是誤報", correct: false, impact: "延誤可能導致傷亡。", cost: 45 }] },
+        { title: "道路塌陷", desc: "暴雨後道路中央突然塌陷，你會？", choices: [{ text: "立刻封閉道路", correct: true, impact: "防止車輛掉落。", cost: 10 }, { text: "放警示牌就好", correct: false, impact: "夜間可能看不清楚。", cost: 35 }] },
+        { title: "避難廣播", desc: "地震後通訊不穩，如何通知民眾避難？", choices: [{ text: "啟用防災廣播系統", correct: true, impact: "可快速傳遞訊息。", cost: 10 }, { text: "等大家自己上網查", correct: false, impact: "災時網路可能中斷。", cost: 40 }] },
+        { title: "瓦礫搜救", desc: "建築倒塌後疑似有人受困，你會？", choices: [{ text: "由搜救隊進入評估", correct: true, impact: "避免二次坍塌傷亡。", cost: 15 }, { text: "讓家屬自行進入找人", correct: false, impact: "可能造成更多受困者。", cost: 50 }] },
+        { title: "水庫警戒", desc: "颱風導致水庫接近滿水位，你會？", choices: [{ text: "提前洩洪並通知下游", correct: true, impact: "降低潰堤風險。", cost: 10 }, { text: "等水溢出再說", correct: false, impact: "可能造成重大洪災。", cost: 50 }] },
+        { title: "機場濃霧", desc: "機場能見度過低，你會？", choices: [{ text: "暫停航班起降", correct: true, impact: "飛安不可冒險。", cost: 10 }, { text: "照常飛行節省時間", correct: false, impact: "可能發生空難。", cost: 50 }] },
+        { title: "校車拋錨", desc: "校車在高溫下拋錨，車上有許多學生，你會？", choices: [{ text: "安排學生移至安全陰涼處", correct: true, impact: "避免中暑與交通危險。", cost: 10 }, { text: "要求學生留在車內等待", correct: false, impact: "密閉高溫可能造成危險。", cost: 40 }] },
+        { title: "港口漏油", desc: "港區發生船隻漏油事故，你會？", choices: [{ text: "設置攔油索控制污染", correct: true, impact: "可減少海洋污染擴散。", cost: 15 }, { text: "等海浪自然沖散", correct: false, impact: "污染會擴大影響生態。", cost: 45 }] },
+        { title: "隧道火災", desc: "高速公路隧道內有車輛起火，你會？", choices: [{ text: "立即封閉隧道並疏散車輛", correct: true, impact: "避免濃煙造成傷亡。", cost: 10 }, { text: "請駕駛快速通過", correct: false, impact: "可能導致連環事故。", cost: 50 }] },
+        { title: "油庫失火", desc: "儲油槽附近發生火災，你會？", choices: [{ text: "建立警戒區並降溫處理", correct: true, impact: "避免爆炸擴大。", cost: 15 }, { text: "直接靠近查看火勢", correct: false, impact: "可能發生爆炸。", cost: 50 }] },
+        { title: "大型活動踩踏", desc: "演唱會出口出現推擠情況，你會？", choices: [{ text: "分流人群並開啟其他出口", correct: true, impact: "可避免踩踏事故。", cost: 10 }, { text: "要求大家快點離開", correct: false, impact: "可能讓混亂更嚴重。", cost: 35 }] },
+        { title: "山區失聯", desc: "登山客失聯超過一天，你會？", choices: [{ text: "立即啟動搜救行動", correct: true, impact: "黃金救援時間很重要。", cost: 15 }, { text: "再等幾天看看", correct: false, impact: "可能錯失救援時機。", cost: 45 }] },
+        { title: "校園瓦斯味", desc: "學校餐廳出現濃厚瓦斯味，你會？", choices: [{ text: "立刻疏散並關閉瓦斯", correct: true, impact: "可避免爆炸。", cost: 10 }, { text: "開電風扇吹散氣味", correct: false, impact: "可能引發火花爆炸。", cost: 50 }] },
+        { title: "堤防滲水", desc: "河川堤防出現大量滲水，你會？", choices: [{ text: "立即加固並警戒", correct: true, impact: "防止潰堤。", cost: 15 }, { text: "等水位下降再處理", correct: false, impact: "可能突然潰堤。", cost: 50 }] },
+        { title: "遊樂園停電", desc: "遊樂園設施運轉中突然停電，你會？", choices: [{ text: "啟動緊急救援程序", correct: true, impact: "優先救出受困遊客。", cost: 10 }, { text: "等電恢復即可", correct: false, impact: "遊客可能恐慌受傷。", cost: 40 }] },
+        { title: "冰庫故障", desc: "避難所食品冷藏設備故障，你會？", choices: [{ text: "優先檢查食物安全", correct: true, impact: "避免食物中毒。", cost: 10 }, { text: "照常發放食物", correct: false, impact: "可能造成群體感染。", cost: 35 }] },
+        { title: "暴雨溪水暴漲", desc: "山區溪水突然暴漲，你會？", choices: [{ text: "立刻禁止民眾靠近河道", correct: true, impact: "避免溪水沖走民眾。", cost: 10 }, { text: "提醒大家小心即可", correct: false, impact: "水勢可能瞬間暴漲。", cost: 45 }] },
+        { title: "工地鷹架倒塌", desc: "工地鷹架部分倒塌，你會？", choices: [{ text: "停止施工並封鎖現場", correct: true, impact: "避免更多人受傷。", cost: 10 }, { text: "請工人繼續作業", correct: false, impact: "可能再次坍塌。", cost: 50 }] },
+        { title: "緊急避難包", desc: "避難所物資有限，你會優先準備什麼？", choices: [{ text: "飲水與醫療用品", correct: true, impact: "生存基本需求最優先。", cost: 10 }, { text: "娛樂用品與零食", correct: false, impact: "無法滿足緊急需求。", cost: 30 }] },
+        { title: "地震電梯", desc: "地震發生時有人正要搭電梯，你會？", choices: [{ text: "提醒改走樓梯避難", correct: true, impact: "避免受困電梯。", cost: 10 }, { text: "快速搭電梯下樓", correct: false, impact: "可能停電受困。", cost: 45 }] },
+        { title: "寒流來襲", desc: "寒流導致街友有失溫風險，你會？", choices: [{ text: "開放臨時避寒中心", correct: true, impact: "保護弱勢族群。", cost: 10 }, { text: "提醒多穿衣服即可", correct: false, impact: "仍可能失溫。", cost: 35 }] },
+        { title: "火場濃煙", desc: "大樓火災濃煙密布，你會？", choices: [{ text: "低姿勢逃生並摀住口鼻", correct: true, impact: "可降低吸入濃煙風險。", cost: 10 }, { text: "直接站著往外跑", correct: false, impact: "容易吸入高溫濃煙。", cost: 40 }] },
+        { title: "地下停車場淹水", desc: "地下停車場快速積水，你會？", choices: [{ text: "禁止人車進入", correct: true, impact: "避免受困溺水。", cost: 10 }, { text: "讓車主自行判斷", correct: false, impact: "可能來不及逃生。", cost: 45 }] },
+        { title: "森林步道落石", desc: "森林步道發生落石，你會？", choices: [{ text: "立刻封閉步道", correct: true, impact: "避免遊客受傷。", cost: 10 }, { text: "只放警告牌", correct: false, impact: "仍可能有人誤闖。", cost: 35 }] },
+        { title: "颱風招牌鬆脫", desc: "颱風期間大型招牌搖晃，你會？", choices: [{ text: "立即封鎖下方區域", correct: true, impact: "防止砸傷路人。", cost: 10 }, { text: "等風停再處理", correct: false, impact: "招牌可能隨時掉落。", cost: 45 }] },
+        { title: "避難所衝突", desc: "避難所民眾因物資問題發生爭吵，你會？", choices: [{ text: "立即協調並公平分配", correct: true, impact: "避免秩序失控。", cost: 10 }, { text: "放任民眾自行解決", correct: false, impact: "可能演變成暴力事件。", cost: 35 }] },
+        { title: "河川暴漲", desc: "豪雨導致河川水位快速上升，你會？", choices: [{ text: "立刻發布撤離通知", correct: true, impact: "可降低淹水傷亡。", cost: 10 }, { text: "先觀察幾小時", correct: false, impact: "可能錯過逃生時機。", cost: 45 }] },
+        { title: "地震瓦斯外洩", desc: "地震後住宅區傳出瓦斯味，你會？", choices: [{ text: "關閉瓦斯總開關並通報", correct: true, impact: "避免爆炸事故。", cost: 10 }, { text: "打開電燈檢查", correct: false, impact: "可能產生火花。", cost: 50 }] },
+        { title: "校園避難演練", desc: "學校正在進行地震演練，你會？", choices: [{ text: "指導學生趴下掩護穩住", correct: true, impact: "這是正確避震動作。", cost: 10 }, { text: "讓學生直接衝出教室", correct: false, impact: "可能被掉落物砸傷。", cost: 40 }] },
+        { title: "病媒蚊孳生", desc: "災後積水區出現大量病媒蚊，你會？", choices: [{ text: "立刻清除積水並消毒", correct: true, impact: "可防止疫情爆發。", cost: 10 }, { text: "等蚊子自然消失", correct: false, impact: "可能傳播疾病。", cost: 35 }] },
+        { title: "避難道路阻塞", desc: "主要避難道路被倒樹阻擋，你會？", choices: [{ text: "立即清除障礙物", correct: true, impact: "保持逃生路線暢通。", cost: 10 }, { text: "等天亮再處理", correct: false, impact: "可能影響救援。", cost: 40 }] },
+        { title: "貨櫃掉落", desc: "港區貨櫃因強風傾倒，你會？", choices: [{ text: "封鎖危險區域", correct: true, impact: "避免二次傷害。", cost: 10 }, { text: "請民眾幫忙扶正", correct: false, impact: "可能再次倒塌。", cost: 50 }] },
+        { title: "停電醫療器材", desc: "停電導致病患呼吸器停止，你會？", choices: [{ text: "立即接上備援電源", correct: true, impact: "維持生命支持。", cost: 10 }, { text: "等待電力恢復", correct: false, impact: "病患可能窒息。", cost: 50 }] },
+        { title: "船隻翻覆", desc: "海上觀光船翻覆，你會？", choices: [{ text: "立刻派遣海巡搜救", correct: true, impact: "黃金救援時間重要。", cost: 15 }, { text: "等船自行漂回", correct: false, impact: "可能延誤救援。", cost: 45 }] },
+        { title: "地震後餘震", desc: "強震後仍持續有餘震，你會？", choices: [{ text: "禁止民眾返回危樓", correct: true, impact: "避免建物倒塌。", cost: 10 }, { text: "允許短暫回家拿東西", correct: false, impact: "餘震可能造成坍塌。", cost: 50 }] },
+        { title: "災區飲水", desc: "災區飲用水疑似受到污染，你會？", choices: [{ text: "提供煮沸或瓶裝水", correct: true, impact: "避免傳染疾病。", cost: 10 }, { text: "照常飲用自來水", correct: false, impact: "可能造成腹瀉疫情。", cost: 40 }] }
+    ];
+
+    // --- 第二階段題庫 (52題完整版) ---
+    const phase2Data = [
+        { title: "交通與供水", desc: "電力有限！要恢復全城號誌系統，還是恢復高樓層供水幫浦？", choices: [{ text: "優先恢復交通號誌", impact: "救護車與車流恢復順暢，但全城高樓層居民面臨斷水。", cost: 25 }, { text: "優先恢復供水系統", impact: "居民生活用水恢復正常，但交通極度混亂影響救援。", cost: 25 }] },
+        { title: "通訊與治安", desc: "要優先供電給手機基地台，還是供電給街頭監視器與警局系統？", choices: [{ text: "修復基地台通訊", impact: "民眾能聯絡家人感到安心，但警方監控失效。", cost: 20 }, { text: "修復警局系統", impact: "社區治安得到守護，但全城通訊中斷引發焦慮。", cost: 20 }] },
+        { title: "圖書館與避難中心", desc: "社區中心只能作為圖書館或臨時避難中心使用，你會？", choices: [{ text: "改成避難中心", impact: "災民獲得安置空間，但居民失去學習場所。", cost: 20 }, { text: "維持圖書館", impact: "保留教育資源，但部分災民無處可去。", cost: 20 }] },
+        { title: "電梯與冷藏庫", desc: "備用電力有限，要供應大樓電梯還是食品冷藏庫？", choices: [{ text: "恢復電梯", impact: "長者與病患上下樓更安全，但食物開始腐壞。", cost: 20 }, { text: "恢復冷藏庫", impact: "食物保存完整，但高樓住戶行動困難。", cost: 20 }] },
+        { title: "救災物資與燃料", desc: "運輸車輛空間不足，要多載救災物資還是備用燃料？", choices: [{ text: "載送物資", impact: "災民獲得急需用品，但設施缺乏燃料。", cost: 20 }, { text: "載送燃料", impact: "設備能持續運作，但災民物資不足。", cost: 20 }] },
+        { title: "手機訊號與廣播", desc: "只能恢復手機訊號或社區廣播系統，你會？", choices: [{ text: "恢復手機訊號", impact: "民眾能聯繫家人，但長者無法接收資訊。", cost: 15 }, { text: "恢復廣播系統", impact: "消息能全面通知，但民眾仍無法聯絡親友。", cost: 15 }] },
+        { title: "觀光區與住宅區", desc: "只能先恢復一區電力，你會？", choices: [{ text: "恢復住宅區", impact: "居民生活恢復，但城市經濟重創。", cost: 20 }, { text: "恢復觀光區", impact: "經濟較快回穩，但居民持續停電。", cost: 20 }] },
+        { title: "便利商店與藥局", desc: "有限電力下，要優先供應便利商店還是藥局？", choices: [{ text: "供應藥局", impact: "病患取得藥物，但民生物資供應不足。", cost: 20 }, { text: "供應便利商店", impact: "民生便利，但慢性病患可能缺藥。", cost: 20 }] },
+        { title: "橋梁修復與河堤補強", desc: "工程隊只能執行一項大型工程，你會？", choices: [{ text: "修復橋梁", impact: "交通順暢，但河川潰堤風險增加。", cost: 25 }, { text: "補強河堤", impact: "降低水災風險，但交通嚴重受阻。", cost: 25 }] },
+        { title: "學生與上班族", desc: "大眾運輸量能不足，要優先提供給學生還是上班族？", choices: [{ text: "優先學生", impact: "教育不中斷，但企業運作效率下降。", cost: 20 }, { text: "優先上班族", impact: "經濟活動維持，但學生通勤困難。", cost: 20 }] },
+        { title: "消防水源與民生用水", desc: "水庫存量不足，你會優先保留？", choices: [{ text: "保留消防用水", impact: "防火能力強，但居民生活用水受限。", cost: 20 }, { text: "保留民生用水", impact: "居民生活穩定，但消防能力下降。", cost: 20 }] },
+        { title: "夜間照明與設備充電", desc: "避難所電力不足，只能開燈或提供充電？", choices: [{ text: "維持照明", impact: "夜間安全提升，但手機沒電無法通訊。", cost: 15 }, { text: "提供充電", impact: "能保持聯絡，內環境昏暗。", cost: 15 }] },
+        { title: "河川整治與道路修補", desc: "災後預算有限，只能先處理一項？", choices: [{ text: "整治河川", impact: "未來洪水風險下降，但道路依然坑洞。", cost: 25 }, { text: "修補道路", impact: "交通便利，但水患隱憂未解。", cost: 25 }] },
+        { title: "電影院與社福中心", desc: "社區供電有限，要先恢復娛樂場所還是社福中心？", choices: [{ text: "恢復社福中心", impact: "弱勢獲得協助，但民眾缺乏紓壓空間。", cost: 20 }, { text: "恢復娛樂場所", impact: "民壓紓解，但社福服務中斷。", cost: 20 }] },
+        { title: "直升機救援與物資空投", desc: "直升機只能執行一種任務？", choices: [{ text: "載送傷患", impact: "救回性命，但偏遠區物資極度短缺。", cost: 25 }, { text: "空投物資", impact: "更多災民獲得補給，但傷患等待危急。", cost: 25 }] },
+        { title: "工廠復工與空氣品質", desc: "要不要優先恢復高污染工廠以救經濟？", choices: [{ text: "優先復工", impact: "工作恢復，但空污損害居民健康。", cost: 20 }, { text: "延後復工", impact: "環境較佳，但失業與經濟問題增加。", cost: 20 }] },
+        { title: "收容寵物與人員空間", desc: "避難所空間不足，要開放攜帶寵物嗎？", choices: [{ text: "允許攜帶寵物", impact: "飼主心安，但收容環境變得擁擠雜亂。", cost: 15 }, { text: "禁止攜帶寵物", impact: "人均空間增加，但部分居民拒絕入住。", cost: 15 }] },
+        { title: "災後重建與文化保存", desc: "預算有限，優先修復古蹟還是住宅？", choices: [{ text: "修復住宅", impact: "居民早日返家，但歷史遺產永久消失。", cost: 25 }, { text: "修復古蹟", impact: "文化得以保存，但災民持續無家可歸。", cost: 25 }] },
+        { title: "臨時發電與噪音", desc: "是否在住宅區設置高分貝發電機？", choices: [{ text: "設置發電機", impact: "恢復用電，但噪音干擾居民休息。", cost: 15 }, { text: "不設置發電機", impact: "環境安靜，但停電時間大幅延長。", cost: 15 }] },
+        { title: "大型賣場與小商家", desc: "只能優先恢復一方營運，你會？", choices: [{ text: "恢復大型賣場", impact: "物資供應穩定，但小商家可能倒閉。", cost: 20 }, { text: "恢復小商家", impact: "支持地方經濟，但物資供應效率低。", cost: 20 }] },
+        { title: "校舍修復與醫療站", desc: "施工人力不足，優先處理哪一處？", choices: [{ text: "修復校舍", impact: "早日復課，但臨時醫療空間匱乏。", cost: 20 }, { text: "建設醫療站", impact: "醫療資源足，但學生持續停課。", cost: 20 }] },
+        { title: "新聞透明與避免恐慌", desc: "是否公開災情最壞預測？", choices: [{ text: "全面公開", impact: "民眾能準備，但社會可能集體恐慌。", cost: 15 }, { text: "部分公開", impact: "社會穩定，但部分民眾防範不足。", cost: 15 }] },
+        { title: "風災樹木與道路暢通", desc: "只能優先處理一項？", choices: [{ text: "清除倒樹", impact: "減少公共危險，但道路依然堵塞。", cost: 20 }, { text: "搶通道路", impact: "交通恢復快，但殘餘倒樹仍有風險。", cost: 20 }] },
+        { title: "地下街與地面商圈", desc: "排水資源只能保住一邊，選哪邊？", choices: [{ text: "保護地下街", impact: "商業損失減，但地面路段積水嚴重。", cost: 20 }, { text: "保護地面商圈", impact: "幹道維持，但地下商場毀於一瞬。", cost: 20 }] },
+        { title: "醫院與避難所電力", desc: "只能供應大型醫院或臨時避難所？", choices: [{ text: "優先供電醫院", impact: "重症獲救，但避難所民眾不安。", cost: 25 }, { text: "優先供電避難所", impact: "民眾安穩，但部分醫療設備停擺。", cost: 25 }] },
+        { title: "冷鏈疫苗與超市食品", desc: "電力不足，保疫苗還是保食品？", choices: [{ text: "維持疫苗冷鏈", impact: "疫苗安全，但大量食品腐毀引發飢餓。", cost: 20 }, { text: "維持超市冷藏", impact: "食物充足，但珍貴疫苗全數失效。", cost: 20 }] },
+        { title: "抽水站與資料中心", desc: "暴雨後修復抽水站還是行政資料中心？", choices: [{ text: "修復抽水站", impact: "淹水減輕，但政府行政陷入癱瘓。", cost: 25 }, { text: "修復資料中心", impact: "行政正常，但部分地區持續淹水。", cost: 25 }] },
+        { title: "公車與垃圾清運", desc: "燃料有限，救公車還是救垃圾車？", choices: [{ text: "恢復公車", impact: "民眾能通勤，但垃圾堆積引發惡臭。", cost: 20 }, { text: "恢復垃圾清運", impact: "環境衛生好，但民眾交通極度困難。", cost: 20 }] },
+        { title: "山區與市區搶修", desc: "只能先救一處電力？", choices: [{ text: "優先山區", impact: "偏遠獲得正義，但市區恢復延後。", cost: 20 }, { text: "優先市區", impact: "多數人恢復，但山區居民感到被犧牲。", cost: 20 }] },
+        { title: "老人與幼童優先權", desc: "避難所空間不足，優先收容誰？", choices: [{ text: "優先安置老人", impact: "長者獲保，但幼童家庭被迫露宿。", cost: 30 }, { text: "優先安置幼童", impact: "保護未來，但高齡者健康風險劇增。", cost: 30 }] },
+        { title: "農田與住宅排水", desc: "排水系統只能保住一區？", choices: [{ text: "保護住宅區", impact: "財產獲保，但農作物泡水造成糧荒。", cost: 25 }, { text: "保護農田", impact: "維持糧食供應，但大量民宅淹水。", cost: 25 }] },
+        { title: "藥品與飲水運輸", desc: "運能有限，載藥品還是載水？", choices: [{ text: "優先藥品", impact: "病患獲救，但一般市民面臨渴死威脅。", cost: 20 }, { text: "優先飲水", impact: "民眾止渴，但重病者無藥可用。", cost: 20 }] },
+        { title: "停班與停課決策", desc: "只能宣佈一項停班課？", choices: [{ text: "優先停班", impact: "降低通勤風險，但學生仍需冒雨上學。", cost: 15 }, { text: "優先停課", impact: "孩子安全，但家長無法工作需照顧孩子。", cost: 15 }] },
+        { title: "醫護與工程人員撤離", desc: "直升機位置有限，載醫護還是工程人員？", choices: [{ text: "載送醫護", impact: "傷患獲救，但城市損壞無法修復。", cost: 25 }, { text: "載送工程師", impact: "修復加快，但傷患等待危急。", cost: 25 }] },
+        { title: "監獄供電與路燈", desc: "電力吃緊，要維持監獄監控還是路燈？", choices: [{ text: "維持監獄供電", impact: "確保囚犯無法趁亂逃脫，但街頭陷入黑暗。", cost: 20 }, { text: "維持路燈照明", impact: "降低街頭犯罪風險，但監獄安全出現漏洞。", cost: 20 }] },
+        { title: "安養院與產後中心", desc: "救援物資不足，優先送往哪邊？", choices: [{ text: "優先送往安養院", impact: "保護脆弱長者，但新生兒家庭需求被延後。", cost: 25 }, { text: "優先送往產後中心", impact: "保護母嬰安全，但失能長者面臨困境。", cost: 25 }] },
+        { title: "自來水廠與電信機房", desc: "緊急修復人力只有一組？", choices: [{ text: "修復水廠", impact: "居民有水喝，但通訊斷絕無法向外界求援。", cost: 25 }, { text: "修復電信機房", impact: "恢復向外通訊，但居民面臨斷水危機。", cost: 25 }] },
+        { title: "銀行系統與大眾運輸", desc: "城市復電順序？", choices: [{ text: "優先恢復銀行", impact: "金融秩序穩定，但民眾依然無法搭車。", cost: 20 }, { text: "優先大眾運輸", impact: "民眾恢復流動，但無法提款或電子支付。", cost: 20 }] },
+        { title: "街頭路燈與家庭用電", desc: "電力配比，要照亮街道還是供應家戶？", choices: [{ text: "照亮街道", impact: "減少夜間犯罪與意外，但居民家裡漆黑。", cost: 15 }, { text: "供應家戶", impact: "居民在家安心，但街道成為治安死角。", cost: 15 }] },
+        { title: "公園避難與校園避難", desc: "要將哪邊設為主要災民收容所？", choices: [{ text: "選擇公園", impact: "空間開放易管理，但日曬雨淋較辛苦。", cost: 15 }, { text: "選擇學校", impact: "設施完善遮風避雨，但將無限期停課。", cost: 15 }] },
+        { title: "國際援助與主權自主", desc: "國外物資帶有政治條件，是否接受？", choices: [{ text: "接受援助", impact: "災民快速獲得救助，但政治立場受挑戰。", cost: 20 }, { text: "婉拒援助", impact: "維持自主立場，但救災資源極度匱乏。", cost: 20 }] },
+        { title: "受災補助與重建基金", desc: "預算要直接發給民眾還是用於公共設施？", choices: [{ text: "直接發放補助金", impact: "民眾解決燃眉之急，但公共設施修復慢。", cost: 25 }, { text: "投入基礎建設", impact: "城市早日恢復，但受災民眾生活困難。", cost: 25 }] },
+        { title: "垃圾焚化與掩埋", desc: "停電導致焚化爐停轉，垃圾要堆在哪？", choices: [{ text: "暫存市區公園", impact: "清運速度快，但周邊居民抗議惡臭。", cost: 20 }, { text: "運往遠郊掩埋", impact: "市區環境好，但運輸成本高且效率低。", cost: 20 }] },
+        { title: "軍方進駐與警察維持", desc: "治安混亂，是否請求軍方接管？", choices: [{ text: "請軍方進駐", impact: "治安迅速恢復，但民眾可能感到威權壓力。", cost: 20 }, { text: "維持警察處理", impact: "社會氣氛較輕鬆，但警力疲憊治安難保。", cost: 20 }] },
+        { title: "免費供餐與物資控管", desc: "物資發放方式？", choices: [{ text: "全面免費供應", impact: "災民免於飢餓，但物資可能在三天內耗盡。", cost: 30 }, { text: "嚴格憑證配給", impact: "確保長期供應，但弱勢災民可能領不到。", cost: 30 }] },
+        { title: "廢墟清理與證據保全", desc: "發生人為災害疑雲，優先清理還是調查？", choices: [{ text: "優先清理復原", impact: "景觀早日恢復，但可能破壞究責證據。", cost: 20 }, { text: "封鎖現場調查", impact: "真相得以大白，但社區重建遙遙無期。", cost: 20 }] },
+        { title: "網路寬頻與有線電視", desc: "頻寬有限，優先保障哪種訊號？", choices: [{ text: "保障網際網路", impact: "年輕人能獲取資訊，但長輩失去新聞來源。", cost: 15 }, { text: "保障電視訊號", impact: "長輩能看官方公告，但數位通訊癱瘓。", cost: 15 }] },
+        { title: "私人醫生與公立診所", desc: "緊急醫材短缺，優先配發給誰？", choices: [{ text: "優先公立醫院", impact: "多數民眾受益，但私人診所病患遭遺棄。", cost: 25 }, { text: "全面平均配發", impact: "表面公平，但大型重症中心將物資不足。", cost: 25 }] },
+        { title: "排水溝清理與樹木修剪", desc: "防颱人力有限，選哪項？", choices: [{ text: "清理排水溝", impact: "減少淹水機率，但倒樹砸人風險增加。", cost: 20 }, { text: "修剪路樹", impact: "保護行人安全，但豪雨來襲必定淹水。", cost: 20 }] },
+        { title: "緊急稅收與緩課稅", desc: "災後財政短缺，你會？", choices: [{ text: "徵收特別救災捐", impact: "有錢重建，但民眾負擔過重引發民怨。", cost: 20 }, { text: "宣佈全面減稅", impact: "民眾生活好過，但政府將面臨破產。", cost: 20 }] },
+        { title: "大型避難所與小型分散", desc: "收容策略？", choices: [{ text: "集中管理", impact: "物資配發容易，但易發生傳染病傳播。", cost: 20 }, { text: "分散社區", impact: "生活隱私較好，但物資配送困難且慢。", cost: 20 }] },
+        { title: "災後心理諮商與建物檢查", desc: "有限預算下，優先執行哪項？", choices: [{ text: "心理諮商服務", impact: "災民心靈安穩，但仍住在結構不明的屋裡。", cost: 20 }, { text: "建物結構檢查", impact: "確認居住安全，但災民集體創傷未解。", cost: 20 }] }
+    ];
+
+    // 初始化與執行邏輯
+    function showPage(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function startGame() {
+        energy = 100;
+        history = [];
+        currentStepInFullGame = 0;
+        currentPhase = 1;
+        // 隨機抽取 2 題
+        selectedP1 = [...phase1Data].sort(() => 0.5 - Math.random()).slice(0, 2);
+        selectedP2 = [...phase2Data].sort(() => 0.5 - Math.random()).slice(0, 2);
+        showPage('game-page');
+        renderStep();
+    }
+
+    function renderStep() {
+        let data;
+        if (currentPhase === 1) {
+            if (currentStepInFullGame >= selectedP1.length) {
+                showPage('bridge-page');
+                return;
+            }
+            data = selectedP1[currentStepInFullGame];
+            document.getElementById('phase-tag').innerText = "階段一：守護生命底線 (SOP)";
+        } else {
+            let p2Index = currentStepInFullGame - selectedP1.length;
+            if (p2Index >= selectedP2.length) {
+                showResults();
+                return;
+            }
+            data = selectedP2[p2Index];
+            document.getElementById('phase-tag').innerText = "階段二：資源分配與「犧牲」 (Trade-off)";
+        }
+
+        document.getElementById('step-title').innerText = `🚨 ${data.title}`;
+        document.getElementById('step-desc').innerText = data.desc;
+        document.getElementById('energy-val').innerText = Math.max(0, energy);
+        
+        const container = document.getElementById('choice-container');
+        container.innerHTML = '';
+        
+        data.choices.forEach((c, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.innerHTML = `<span class="choice-title">${c.text}</span>`;
+            btn.onclick = () => {
+                let status = currentPhase === 1 ? (c.correct ? "correct" : "wrong") : "dilemma";
+                energy -= c.cost;
+                history.push({ 
+                    title: data.title, 
+                    choice: c.text, 
+                    impact: c.impact, 
+                    status: status, 
+                    phase: currentPhase,
+                    choiceIdx: idx 
+                });
+                currentStepInFullGame++;
+                renderStep();
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    function startPhase2() {
+        currentPhase = 2;
+        showPage('game-page');
+        renderStep();
+    }
+
+    function showResults() {
+        showPage('result-page');
+        const list = document.getElementById('feedback-list');
+        const p1Errors = history.filter(h => h.status === 'wrong');
+        
+        let humanitarianScore = 0; 
+        let systemScore = 0;       
+        
+        list.innerHTML = history.map(h => {
+            let typeTag = "";
+            if (h.phase === 1) {
+                typeTag = h.status === 'correct' ? '<span class="tag">專業達標</span>' : '<span class="tag" style="background:var(--danger-color)">安全失誤</span>';
+            } else {
+                typeTag = '<span class="tag" style="background:var(--info-color)">道德抉擇</span>';
+                const keywords = ["居民", "老人", "幼童", "傷患", "藥品", "飲水", "住宅", "避難", "民生", "補助", "安養", "心理"];
+                if (keywords.some(k => h.choice.includes(k))) humanitarianScore++;
+                else systemScore++;
+            }
+
+            return `
+                <div class="result-item ${h.status === 'wrong' ? 'wrong-choice' : ''}">
+                    ${typeTag} <strong>${h.title}</strong><br>
+                    您決定：${h.choice}<br>
+                    <small>🔍 影響：${h.impact}</small>
+                </div>
+            `;
+        }).join('');
+
+        const evalBox = document.getElementById('final-evaluation');
+        let title = "";
+        let feedback = "";
+        let styleDesc = "";
+
+        if (humanitarianScore > systemScore) {
+            styleDesc = "是一位「<b>守護弱勢、以人為本</b>」的市長。您在分配資源時，傾向優先保障市民的生存體感與社會公義。";
+        } else if (systemScore > humanitarianScore) {
+            styleDesc = "是一位「<b>大局為重、效能至上</b>」的市長。您在危機中傾向保住城市的基礎運作功能，確保長期復原力。";
+        } else {
+            styleDesc = "是一位「<b>極度理智、尋求平衡</b>」的市長。您在感性與理性間試圖保持對等，不讓某一側過度失衡。";
+        }
+
+        if (p1Errors.length === 0) {
+            title = "🏆 卓越的領航者";
+            feedback = `<p><b>市長，您的專業素養極高！</b> 您在第一階段的 SOP 決策全數正確，這確保了災難不會因人為失誤而擴大。</p>
+                        <p>在第二階段中，您展現出${styleDesc}</p>
+                        <p>在必須「犧牲」時，您展現了令人印象深刻的果斷。這座城市有您掌舵是幸運的。</p>`;
+        } else if (p1Errors.length === 1) {
+            title = "⚖️ 謹慎的挑戰者";
+            const errorTitle = p1Errors[0].title;
+            feedback = `<p><b>整體表現穩健，但細節仍有漏洞。</b> 您在「${errorTitle}」的決策中出現了專業疏失，這可能在現實中導致不可控的災情。</p>
+                        <p>決策風格分析：您${styleDesc}</p>
+                        <p>請記住：任何「權衡」若沒有正確的「SOP」支撐，都將會是空中樓閣。加油！</p>`;
+        } else {
+            title = "⚠️ 危機邊緣的決策者";
+            feedback = `<p><b>警報！您的專業知識仍需大幅補強。</b> 在第一階段出現多次關鍵失誤，這代表基礎防線已經崩潰。</p>
+                        <p>儘管您${styleDesc} 但在現實災難中，如果連基礎安全都顧不好，再感人或再有效率的抉擇都無法救活市民。</p>
+                        <p>建議重新閱讀防災準則，再次演練。</p>`;
+        }
+
+        evalBox.innerHTML = `
+            <h3 style="margin-top:0; color: #333;">${title}</h3>
+            <div style="font-size: 1.1rem; color: #444;">${feedback}</div>
+            <p style="margin-top: 15px; font-weight: 900; color: var(--danger-color); text-align:center;">最終電力餘裕：${Math.max(0, energy)} %</p>
+        `;
+    }
+</script>
+</body>
+</html>
